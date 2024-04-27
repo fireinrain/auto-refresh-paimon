@@ -8,6 +8,13 @@ def process_atin_dburl(dburl: str) -> str:
     return dburl
 
 
+def detect_country_by_keyword(country_map: dict, keyword: str) -> [str]:
+    keys = country_map.keys()
+    for k in keys:
+        if k in keyword:
+            return country_map[k]
+
+
 if __name__ == '__main__':
     db_url = "root:aabbcc@abc.mysql@apple.com:24306/apple"
 

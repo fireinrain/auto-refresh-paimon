@@ -14,7 +14,7 @@ on:
     # run on every 15 min
     # - cron: "*/45 * * * *"
     # run on 0 and 12 clock
-    - cron: "0 0,6,12,18 * * *"
+    - cron: "*/10 * * * *"
 
 
 jobs:

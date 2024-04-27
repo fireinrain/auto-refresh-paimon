@@ -1,3 +1,5 @@
+import csv
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -8,14 +10,14 @@ import config
 
 @dataclass
 class CFIPData:
-    ip: str
-    port: int
-    is_secure: bool
-    city_code: str
-    region: str
-    country: str
-    latency: str
-    download_speed: str
+    ip: str = ""
+    port: int = 0
+    tls: bool = True
+    city_code: str = ""
+    region: str = ""
+    country: str = ""
+    latency: str = ""
+    download_speed: str = ""
 
 
 class CloudflareIPProvider(ABC):
@@ -26,12 +28,61 @@ class CloudflareIPProvider(ABC):
 
 class AAAGroupIPProvider(CloudflareIPProvider):
     def get_ips(self) -> [CFIPData]:
-        response = requests.get(config.GlobalConfig.cf_betterip_api)
-        json_data = response.json()
-        print()
+        try:
+            response = requests.get(config.GlobalConfig.cf_betterip_api)
+            response.raise_for_status()
+            json_data = response.json()
+            ip_datas = json_data['data']
+            result = []
+            for data in ip_datas:
+                cfip_data = CFIPData()
+                cfip_data.ip = data['host']
+                cfip_data.port = data['port']
+                cfip_data.country = data['country']
+                result.append(cfip_data)
+            return result
+        except Exception as e:
+            print(f">>> Get cloudflare ips from AAA failed: {e}")
+            return []
+
+
+class CSVFileIPProvider(CloudflareIPProvider):
+    def get_ips(self) -> [CFIPData]:
+        csv_files = self.read_csv_files("./cloudflare-ips")
+        result = []
+        for ip in csv_files:
+            cfip_data = CFIPData()
+            cfip_data.ip = ip['ip']
+            cfip_data.port = 443
+            cfip_data.country = ip['country']
+            cfip_data.tls = True
+            result.append(cfip_data)
+        # print(csv_files)
+        return result
+
+    @staticmethod
+    def read_csv_files(directory: str) -> [{}]:
+        data_list = []
+
+        # Walk through the directory
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                if file.endswith(".csv"):
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r', newline='', encoding='utf-8') as csvfile:
+                        csv_reader = csv.reader(csvfile)
+                        for row in csv_reader:
+                            # Assuming each row has exactly 3 fields
+                            if len(row) == 3:
+                                data_list.append({'ip': row[0], 'ipv6': row[1], 'country': row[2]})
+
+        return data_list
 
 
 if __name__ == '__main__':
-    ip_provider = AAAGroupIPProvider()
+    # ip_provider = AAAGroupIPProvider()
+    # ips = ip_provider.get_ips()
+    # print(ips)
+    ip_provider = CSVFileIPProvider()
     ips = ip_provider.get_ips()
     print(ips)
