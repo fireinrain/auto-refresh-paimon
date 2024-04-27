@@ -29,5 +29,4 @@ class Config(object):
     def get_node_country_map(self):
         return self.node_country_map
 
-
 GlobalConfig = Config()
