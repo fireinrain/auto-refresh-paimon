@@ -1,6 +1,8 @@
+import http.client
 import random
 import re
 import socket
+import ssl
 import time
 from urllib.parse import urlparse
 
@@ -11,28 +13,31 @@ import locations
 
 class IPChecker:
     @staticmethod
-    def check_port_open(host: socket, port: str | int) -> bool:
-        is_open = False
+    def check_port_open(host: socket, port: str | int, retry: int = 1, threshold: int = 1) -> bool:
         sock = None
         port = int(port)
-        try:
-            # Create a socket object
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # Set timeout to 1 second
-            sock.settimeout(1.5)
-            # Connect to the host and port
-            result = sock.connect_ex((host, port))
-            if result == 0:
-                print(f">>> Port {port} is open on {host}")
-                is_open = True
-            else:
-                print(f">>> Port {port} is closed on {host}")
+        success_count = 0
+        for i in range(retry):
+            try:
+                # Create a socket object
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                # Set timeout to 1 second
+                sock.settimeout(2.)
+                # Connect to the host and port
+                result = sock.connect_ex((host, port))
+                if result == 0:
+                    print(f">>> Port {port} is open on {host}")
+                    success_count += 1
+                else:
+                    print(f">>> Port {port} is closed on {host}")
 
-        except Exception as e:
-            print(f"Error checking port: {e}")
-        finally:
-            sock.close()
-        return is_open
+            except Exception as e:
+                print(f"Error checking port: {e}")
+            finally:
+                sock.close()
+        if success_count >= threshold and success_count > 0:
+            return True
+        return False
 
     # 检测ip端口是否被gfw ban
     @staticmethod
@@ -99,28 +104,32 @@ class IPChecker:
         else:
             url = f'http://{test_url}'
         parsed_url = urlparse(url)
+        path = parsed_url.path
+        if not path:
+            path = '/'
 
-        headers = {
-            'Host': 'speed.cloudflare.com',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36'
-
-        }
         start_time = time.time()
-        if parsed_url.scheme == 'http':
-            response = requests.get(f'http://{ip}:{port}/cdn-cgi/trace', headers=headers, verify=False)
 
+        connection = None
+        if parsed_url.scheme == 'http':
+            connection = http.client.HTTPConnection(ip, port)
         elif parsed_url.scheme == 'https':
-            response = requests.get(f'https://{ip}:{port}/cdn-cgi/trace', headers=headers, verify=True)
+            context = ssl.create_default_context()
+            connection = http.client.HTTPSConnection(ip, port, context=context)
         else:
             print(f">>> Unsupported URL scheme")
             return [False, {}]
-        # Calculate the total time taken for both operations
-        total_duration = f'{(time.time() - start_time) * 1000:.2f}'
-        print(f'Total tcp connection duration: {total_duration} ms')
 
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36'
+        }
         try:
-
-            resp = response.text
+            connection.request("GET", path, headers=headers)
+            response = connection.getresponse()
+            # Calculate the total time taken for both operations
+            total_duration = f'{(time.time() - start_time) * 1000:.2f}'
+            print(f'Total tcp connection duration: {total_duration} ms')
+            resp = response.read().decode()
             location = IPChecker.detect_cloudflare_location(host, port, resp, str(total_duration))
             if location is None:
                 return [False, {}]
@@ -129,8 +138,8 @@ class IPChecker:
             print(f">>> Connection failed of: {e}")
             return [False, {}]
         finally:
-            if response:
-                response.close()
+            if connection:
+                connection.close()
 
     @staticmethod
     def detect_cloudflare_location(ip_addr: str, port: int | str, body: str, tcpDuration: str) -> dict | None:

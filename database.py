@@ -4,6 +4,8 @@ import config
 
 from sqlalchemy.orm import declarative_base
 
+import utils
+
 Base = declarative_base()
 
 
@@ -98,6 +100,7 @@ if ".db" in config.GlobalConfig.db_connect_url:
     Base.metadata.create_all(engine)
 else:
     db_url = config.GlobalConfig.db_connect_url
+    db_url = utils.process_atin_dburl(db_url)
     engine = create_engine(f'mysql+mysqlconnector://{db_url}', echo=True)
 
 Session = sessionmaker(bind=engine)
