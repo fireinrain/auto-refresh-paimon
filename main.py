@@ -33,8 +33,15 @@ def main():
                     break
             if not selected_ip:
                 print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ip},不做更新")
+                print(f">>> 考虑到可用性, 使用US地区IP代替,进行更新")
+                for ip in ips:
+                    use_index = ip.ip + str(ip.port) + str(ip.tls)
+                    country_by_keyword = utils.detect_country_by_keyword(country_map, "美国节点,美国专线")
+                    if ip.country in country_by_keyword and use_index not in has_use:
+                        has_use.add(ip.ip + str(ip.port) + str(ip.tls))
+                        selected_ip = ip
+                        break
                 print("--------------------------------------------------------")
-                continue
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
             node.host = selected_ip.ip
             node.port = selected_ip.port
