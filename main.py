@@ -20,7 +20,7 @@ def main():
 
     for node in vless_nodes:
         print(f">>> 当前节点: {node.name}")
-        port_open = checker.IPChecker.check_port_open(node.host, node.port, 2, 1)
+        port_open = checker.IPChecker.check_port_open(node.host, node.port, 3, 1)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
             selected_ip = None
@@ -32,7 +32,7 @@ def main():
                     selected_ip = ip
                     break
             if not selected_ip:
-                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ip}")
+                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ip},不做更新")
                 print("--------------------------------------------------------")
                 continue
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
