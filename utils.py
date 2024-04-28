@@ -1,3 +1,7 @@
+import random
+import time
+
+
 def process_atin_dburl(dburl: str) -> str:
     dburl_split = dburl.split("@")
     if len(dburl_split) == 3:
@@ -13,6 +17,12 @@ def detect_country_by_keyword(country_map: dict, keyword: str) -> [str]:
     for k in keys:
         if k in keyword:
             return country_map[k]
+
+
+def random_sleep(max_sleep: int = 1):
+    sleep_time = random.uniform(0, max_sleep)
+    # 生成一个介于 0 和 1 之间的随机小数
+    time.sleep(sleep_time)
 
 
 if __name__ == '__main__':

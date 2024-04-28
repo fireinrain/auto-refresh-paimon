@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import requests
 
 import locations
+import utils
 
 
 class IPChecker:
@@ -35,6 +36,7 @@ class IPChecker:
                 print(f"Error checking port: {e}")
             finally:
                 sock.close()
+            utils.random_sleep()
         if success_count >= threshold and success_count > 0:
             return True
         return False
