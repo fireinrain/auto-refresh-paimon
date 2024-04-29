@@ -11,8 +11,11 @@ class TestIPChecker(TestCase):
         print(checker.IPChecker.check_baned_with_gfw("220.130.80.179", "443"))
 
     def test_check_cloudflare_proxy(self):
-        proxy = checker.IPChecker.check_cloudflare_proxy("104.19.32.25", "8080", False)
+        proxy = checker.IPChecker.check_cloudflare_proxy("104.19.32.25", "8443", True)
         print(proxy)
+        proxy2 = checker.IPChecker.check_cloudflare_proxy("61.222.202.104", "23555", True)
+        print(proxy2)
+
 
     def test_range(self):
         i = 2

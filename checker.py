@@ -6,6 +6,7 @@ import ssl
 import time
 from urllib.parse import urlparse
 
+import ping3
 import requests
 
 import locations
@@ -97,41 +98,36 @@ class IPChecker:
 
     @staticmethod
     def check_cloudflare_proxy(host: str, port: str | int, tls: bool = True) -> [bool, {}]:
-
         ip = host
         port = int(port)
+        # Set the headers for the download request
+        headers = {'Host': 'speed.cloudflare.com',
+                   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36'
+                   }
         test_url = 'speed.cloudflare.com/cdn-cgi/trace'
         if tls:
+            params = {'resolve': f"speed.cloudflare.com:{port}:{ip}", 'alpn': 'h2,http/1.1', 'utls': 'random'}
+
             url = f'https://{test_url}'
         else:
+            params = {'resolve': f"speed.cloudflare.com:{port}:{ip}"}
+
             url = f'http://{test_url}'
         parsed_url = urlparse(url)
         path = parsed_url.path
         if not path:
             path = '/'
-
-        start_time = time.time()
-
-        connection = None
-        if parsed_url.scheme == 'http':
-            connection = http.client.HTTPConnection(ip, port)
-        elif parsed_url.scheme == 'https':
-            context = ssl.create_default_context()
-            connection = http.client.HTTPSConnection(ip, port, context=context)
-        else:
-            print(f">>> Unsupported URL scheme")
+        if parsed_url.scheme != 'https' and parsed_url.scheme != 'http':
             return [False, {}]
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36'
-        }
+        response = None
         try:
-            connection.request("GET", path, headers=headers)
-            response = connection.getresponse()
+            start_time = time.time()
+            response = requests.get(url, headers=headers, params=params, timeout=2500)
             # Calculate the total time taken for both operations
             total_duration = f'{(time.time() - start_time) * 1000:.2f}'
             print(f'Total tcp connection duration: {total_duration} ms')
-            resp = response.read().decode()
+            resp = response.text
             location = IPChecker.detect_cloudflare_location(host, port, resp, str(total_duration))
             if location is None:
                 return [False, {}]
@@ -140,8 +136,8 @@ class IPChecker:
             print(f">>> Connection failed of: {e}")
             return [False, {}]
         finally:
-            if connection:
-                connection.close()
+            if response:
+                response.close()
 
     @staticmethod
     def detect_cloudflare_location(ip_addr: str, port: int | str, body: str, tcpDuration: str) -> dict | None:
@@ -175,3 +171,182 @@ class IPChecker:
                 }
 
         return None
+
+    @staticmethod
+    # Function to get the ping and jitter of an IP address
+    def get_ping(ip: str, acceptable_ping: int):
+        """
+        Args:
+        ip (str): IP of Cloudflare Network to test its upload speed.
+        acceptable_ping (float): The minimum acceptable download speed.
+
+        Returns:
+        int: The latency in milliseconds.
+        int: The jitter in milliseconds.
+        """
+
+        # Calculate the timeout for requested minimum ping time
+        timeout = int(acceptable_ping / 1000)
+        try:
+            # Start the timer for the download request
+            start_time = time.time()
+            # Get response time of the ping request
+            response_time = ping3.ping(ip, timeout=timeout)
+            # Calculate spent time for fallback
+            duration = int((time.time() - start_time) * 1000)
+            # Calculate the ping in milliseconds
+            ping = int(response_time * 1000) if response_time is not None and response_time > 0 else duration
+        except Exception as e:
+            ping = -1
+
+        # Return ping and jitter in milliseconds
+        return ping
+
+    @staticmethod
+    # Function to get the latency of an IP address
+    def get_latency_jitter(ip: str, acceptable_latency: float, enable_ssl: bool = True) -> []:
+        """
+        Args:
+        ip (str): IP of Cloudflare Network to test its upload speed.
+        acceptable_latency (float): The minimum acceptable download speed.
+
+        Returns:
+        int: The latency in milliseconds.
+        """
+
+        openssl_is_active = enable_ssl
+
+        # An small data to download to calculate latency
+        download_size = 1000
+        # Calculate the timeout for requested minimum latency
+        timeout = acceptable_latency / 1000 * 1.5
+        # Set the URL for the download request
+        url = f"https://speed.cloudflare.com/__down?bytes={download_size}"
+        # Set the headers for the download request
+        headers = {'Host': 'speed.cloudflare.com'}
+        # Set the parameters for the download request
+        if openssl_is_active:
+            params = {'resolve': f"speed.cloudflare.com:443:{ip}", 'alpn': 'h2,http/1.1', 'utls': 'random'}
+        else:
+            params = {'resolve': f"speed.cloudflare.com:443:{ip}"}
+
+        latency = 0
+        jitter = 0
+        last_latency = 0
+        try:
+            for i in range(3):
+                # Start the timer for the download request
+                start_time = time.time()
+                # Send the download request and get the response
+                response = requests.get(url, headers=headers, params=params, timeout=timeout)
+                # Calculate the latency in milliseconds
+                current_latency = int((time.time() - start_time) * 1000)
+                latency = latency + current_latency
+                timeout = acceptable_latency / 1000
+
+                if i > 0:
+                    jitter = jitter + abs(current_latency - last_latency)
+
+                last_latency = current_latency
+
+            latency = int(latency / 4)
+            jitter = int(jitter / 3)
+        except requests.exceptions.RequestException as e:
+            # If there was an exception, set latency to 99999 and jitter to -1
+            latency = 99999
+            jitter = -1
+
+        # Return latency in milliseconds
+        return latency, jitter
+
+    @staticmethod
+    # Function to get the download speed of an IP address
+    def get_download_speed(ip: str, data_size: int, min_speed: float, enable_ssl: bool = True):
+        """
+        Args:
+        ip (str): IP of Cloudflare Network to test its upload speed.
+        size (int): Size of sample data to download for speed test.
+        min_speed (float): The minimum acceptable download speed.
+
+        Returns:
+        float: The download speed in Mbps.
+        """
+
+        openssl_is_active = enable_ssl
+
+        # Convert size from KB to bytes
+        download_size = data_size * 1024
+        # Convert minimum speed from Mbps to bytes/s
+        min_speed_bytes = min_speed * 125000  # 1 Mbps = 125000 bytes/s
+        # Calculate the timeout for the download request
+        timeout = download_size / min_speed_bytes
+        # Set the URL for the download request
+        url = f"https://speed.cloudflare.com/__down?bytes={download_size}"
+        # Set the headers for the download request
+        headers = {'Host': 'speed.cloudflare.com'}
+        # Set the parameters for the download request
+        if openssl_is_active:
+            params = {'resolve': f"speed.cloudflare.com:443:{ip}", 'alpn': 'h2,http/1.1', 'utls': 'random'}
+        else:
+            params = {'resolve': f"speed.cloudflare.com:443:{ip}"}
+        try:
+            # Start the timer for the download request
+            start_time = time.time()
+            # Send the download request and get the response
+            response = requests.get(url, headers=headers, params=params, timeout=timeout)
+            # Calculate the download time
+            download_time = time.time() - start_time
+            # Calculate the download speed in Mbps
+            download_speed = round(download_size / download_time * 8 / 1000000, 2)
+        except requests.exceptions.RequestException as e:
+            # If there was an exception, set download speed to 0
+            download_speed = 0
+
+            # Return the download speed in Mbps
+        return download_speed
+
+    @staticmethod
+    # Function to get the upload speed of an IP address
+    def get_upload_speed(ip: str, data_size: int, min_speed: float, enable_ssl: bool = True):
+        """
+        Args:
+        ip (str): IP of Cloudflare Network to test its upload speed.
+        size (int): Size of sample data to upload for speed test.
+        min_speed (float): The minimum acceptable upload speed.
+
+        Returns:
+        float: The upload speed in Mbps.
+        """
+
+        openssl_is_active = enable_ssl
+
+        # Calculate the upload size, which is 1/4 of the download size to save bandwidth
+        upload_size = int(data_size * 1024 / 4)
+        # Calculate the minimum speed in bytes per second
+        min_speed_bytes = min_speed * 125000  # 1 Mbps = 125000 bytes/s
+        # Calculate the timeout for the request based on the upload size and minimum speed
+        timeout = upload_size / min_speed_bytes
+        # Set the URL, headers, and parameters for the request
+        url = 'https://speed.cloudflare.com/__up'
+        headers = {'Content-Type': 'multipart/form-data', 'Host': 'speed.cloudflare.com'}
+        if openssl_is_active:
+            params = {'resolve': f"speed.cloudflare.com:443:{ip}", 'alpn': 'h2,http/1.1', 'utls': 'random'}
+        else:
+            params = {'resolve': f"speed.cloudflare.com:443:{ip}"}
+
+        # Create a sample file with null bytes of the specified size
+        files = {'file': ('sample.bin', b"\x00" * upload_size)}
+
+        try:
+            # Send the request and measure the upload time
+            start_time = time.time()
+            response = requests.post(url, headers=headers, params=params, files=files, timeout=timeout)
+            upload_time = time.time() - start_time
+            # Calculate the upload speed in Mbps
+            upload_speed = round(upload_size / upload_time * 8 / 1000000, 2)
+        except requests.exceptions.RequestException as e:
+            # If an error occurs, set the upload speed to 0
+            upload_speed = 0
+
+            # Return the upload speed in Mbps
+        return upload_speed
