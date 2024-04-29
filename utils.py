@@ -14,10 +14,16 @@ def process_atin_dburl(dburl: str) -> str:
 
 def detect_country_by_keyword(country_map: dict, keyword: str) -> [str]:
     keys = country_map.keys()
-    for k in keys:
-        if k in keyword:
-            return country_map[k]
+    try:
+        for k in keys:
+            if k in keyword:
+                data = country_map[k]
+                return data
+    except KeyError:
+        # 默认设置为US
+        print(f">>> country_map key error: {keyword},use US as default")
 
+    return ['US', 'SJC', 'LAX']
 
 def random_sleep(max_sleep: int = 1):
     sleep_time = random.uniform(0, max_sleep)

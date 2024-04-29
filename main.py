@@ -12,6 +12,11 @@ def main():
 
     ip_provider = cfips.AAAGroupIPProvider()
     ips = ip_provider.get_ips()
+
+    # 欢乐时光 和 其他免费订阅链接
+    cf_sublinks_ip_provider = cfips.SharedCFSublinksIPProvider()
+    shared_ips = cf_sublinks_ip_provider.get_ips()
+    ips.extend(shared_ips)
     if not ips:
         print(">>> 当前没有可用的Cloudflare IP")
         return
@@ -25,7 +30,7 @@ def main():
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
             selected_ip = None
             for ip in ips:
-                use_index = ip.ip+str(ip.port)+str(ip.tls)
+                use_index = ip.ip + str(ip.port) + str(ip.tls)
                 country_by_keyword = utils.detect_country_by_keyword(country_map, node.name)
                 if ip.country in country_by_keyword and use_index not in has_use:
                     has_use.add(ip.ip + str(ip.port) + str(ip.tls))
@@ -43,6 +48,8 @@ def main():
                         break
                 print("--------------------------------------------------------")
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
+            # TODO 再使用前检测是否在线  在线检测是否是cf反代
+            # 目前默认都是可用的 这个应该会存在误差
             node.host = selected_ip.ip
             node.port = selected_ip.port
             try:

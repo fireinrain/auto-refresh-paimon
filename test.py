@@ -18,3 +18,7 @@ class TestIPChecker(TestCase):
         i = 2
         for a in range(i):
             print(a)
+
+    def test_key_out(self):
+        a = {"a":"b"}
+        print(a["f"])

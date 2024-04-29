@@ -29,6 +29,8 @@ jobs:
       TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
       TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN}}
       V2BOARDDBURL: ${{ secrets.V2BOARDDBURL}}
+      #订阅链接集合，用,分割，质量依次递减
+      SHAREDCFSUBLINKS: ${{ secrets.SHAREDCFSUBLINKS}}
     steps:
     - name: Checkout
       uses: actions/checkout@v2
