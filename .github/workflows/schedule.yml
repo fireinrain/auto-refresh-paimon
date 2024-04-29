@@ -16,7 +16,6 @@ on:
     # run on 0 and 12 clock
     - cron: "*/20 * * * *"
 
-
 jobs:
   build:
 
