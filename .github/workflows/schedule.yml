@@ -47,7 +47,7 @@ jobs:
 
     - name: Run Paimon Cloud updater
       run: |
-        python main.py
+        python main.py proxy
 
     - name: Check for changes
       id: git-status0

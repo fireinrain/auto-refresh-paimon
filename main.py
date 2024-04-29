@@ -1,4 +1,5 @@
 import asyncio
+import sys
 
 import cfips
 import checker
@@ -8,7 +9,7 @@ import notify
 import utils
 
 
-async def main():
+async def schedule_conn_check():
     # get cloudflare cdn proxy from db
     vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
     vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
@@ -73,6 +74,52 @@ async def main():
         else:
             print(f">>> 当前优选IP端口未失效: {node.host}:{node.port},不做更新处理")
         print("--------------------------------------------------------")
+
+
+async def schedule_gfw_ban_check():
+    vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
+    vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
+    for node in vless_nodes:
+        port = node.port
+        ip = node.host
+        baned_with_gfw = checker.IPChecker.check_baned_with_gfw(ip, port)
+        if not baned_with_gfw:
+            continue
+        temp_node_name = node.name
+        temp_host = node.host
+        temp_port = node.port
+        try:
+            node.port = 55555
+            node.ip = "127.0.0.1"
+            database.session.commit()
+            print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+            print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
+
+            # 推送消息
+            telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+                                                            "auto-refresh-paimon paimon-cloud",
+                                                            f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
+            telegram_notify = utils.clean_str_for_tg(telegram_notify)
+            await notify.send_message2bot(telegram_notify)
+        except Exception as e:
+            print(f">>> Error update node info: {e}")
+            database.session.rollback()
+        print("--------------------------------------------------------")
+
+
+async def main():
+    if len(sys.argv) != 2:
+        print("Usage: python main.py <argument>")
+        sys.exit(1)
+
+    argument = sys.argv[1]
+
+    if argument == "proxy":
+        await schedule_conn_check()
+    elif argument == "gfwban":
+        await schedule_gfw_ban_check()
+    else:
+        print(f"Invalid argument: {argument}")
 
 
 if __name__ == '__main__':
