@@ -21,7 +21,7 @@ jobs:
 
     runs-on: ubuntu-latest
     concurrency:
-      group: my-scheduled-job
+      group: scheduled-job-proxy
       cancel-in-progress: true # Optional: if you want to cancel any currently running job when a new one is triggered
 
     env:

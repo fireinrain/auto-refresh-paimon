@@ -116,10 +116,11 @@ async def main():
     argument = sys.argv[1]
 
     if argument == "proxy":
-        # await schedule_conn_check()
-        pass
+        await schedule_conn_check()
     elif argument == "gfwban":
-        await schedule_gfw_ban_check()
+        # 检测方法存在比较大的误判
+        # await schedule_gfw_ban_check()
+        pass
     else:
         print(f"Invalid argument: {argument}")
 
