@@ -25,6 +25,38 @@ def detect_country_by_keyword(country_map: dict, keyword: str) -> [str]:
 
     return ['US', 'SJC', 'LAX']
 
+
+SPECIAL_CHARS = [
+    '\\',
+    '_',
+    '*',
+    '[',
+    ']',
+    '(',
+    ')',
+    '~',
+    '`',
+    '>',
+    '<',
+    '&',
+    '#',
+    '+',
+    '-',
+    '=',
+    '|',
+    '{',
+    '}',
+    '.',
+    '!'
+]
+
+
+def clean_str_for_tg(data_str: str) -> str:
+    for char in SPECIAL_CHARS:
+        data_str = data_str.replace(char, f'\\{char}')
+    return data_str
+
+
 def random_sleep(max_sleep: int = 1):
     sleep_time = random.uniform(0, max_sleep)
     # 生成一个介于 0 和 1 之间的随机小数

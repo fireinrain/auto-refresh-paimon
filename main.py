@@ -1,11 +1,14 @@
+import asyncio
+
 import cfips
 import checker
 import config
 import database
+import notify
 import utils
 
 
-def main():
+async def main():
     # get cloudflare cdn proxy from db
     vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
     vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
@@ -50,11 +53,20 @@ def main():
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
             # TODO 再使用前检测是否在线  在线检测是否是cf反代
             # 目前默认都是可用的 这个应该会存在误差
+            temp_host = node.host
+            temp_port = node.port
+            temp_node_name = node.name
             node.host = selected_ip.ip
             node.port = selected_ip.port
             try:
                 database.session.commit()
                 print(f">>> Update node ip and port successfully!")
+                # 推送消息
+                telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+                                                                "auto-refresh-paimon paimon-cloud",
+                                                                f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
+                telegram_notify = utils.clean_str_for_tg(telegram_notify)
+                await notify.send_message2bot(telegram_notify)
             except Exception as e:
                 print(f">>> Error update node info: {e}")
                 database.session.rollback()
@@ -67,4 +79,4 @@ if __name__ == '__main__':
     print(f"Welcome to auto-refresh-paimon cloud!")
     # proxy = checker.IPChecker.check_cloudflare_proxy("104.19.32.25", "443", True)
     # print(proxy)
-    main()
+    asyncio.run(main())
