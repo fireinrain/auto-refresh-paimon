@@ -1,5 +1,5 @@
 # This workflow will scrap GitHub trending projects daily.
-name: PaimonCloud updater
+name: PaimonCloud updater gfw ban check
 
 on:
   push:
