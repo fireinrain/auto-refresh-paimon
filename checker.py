@@ -37,7 +37,7 @@ class IPChecker:
                 print(f"Error checking port: {e}")
             finally:
                 sock.close()
-            utils.random_sleep()
+            utils.random_sleep(15)
         if success_count >= threshold and success_count > 0:
             return True
         return False
