@@ -24,7 +24,7 @@ class IPChecker:
                 # Create a socket object
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 # Set timeout to 1 second
-                sock.settimeout(2.)
+                sock.settimeout(2.5)
                 # Connect to the host and port
                 result = sock.connect_ex((host, port))
                 if result == 0:

@@ -5,7 +5,7 @@ import checker
 
 class TestIPChecker(TestCase):
     def test_check_port_open(self):
-        print(checker.IPChecker.check_port_open("127.0.0.1", "22"))
+        print(checker.IPChecker.check_port_open("211.22.240.107", "30686"))
 
     def test_check_baned_with_gfw(self):
         print(checker.IPChecker.check_baned_with_gfw("220.130.80.179", "443"))

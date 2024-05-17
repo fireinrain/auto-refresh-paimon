@@ -29,7 +29,7 @@ async def schedule_conn_check():
 
     for node in vless_nodes:
         print(f">>> 当前节点: {node.name}")
-        port_open = checker.IPChecker.check_port_open(node.host, node.port, 3, 1)
+        port_open = checker.IPChecker.check_port_open(node.host, node.port, 5, 1)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
             selected_ip = None
