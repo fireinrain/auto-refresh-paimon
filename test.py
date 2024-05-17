@@ -16,6 +16,9 @@ class TestIPChecker(TestCase):
         proxy2 = checker.IPChecker.check_cloudflare_proxy("61.222.202.104", "23555", True)
         print(proxy2)
 
+    def test_check_if_cf_proxy(self):
+        checkers = checker.IPChecker.check_if_cf_tls_proxy("154.17.21.196", "443")
+        print(checkers)
 
     def test_range(self):
         i = 2
@@ -23,5 +26,5 @@ class TestIPChecker(TestCase):
             print(a)
 
     def test_key_out(self):
-        a = {"a":"b"}
+        a = {"a": "b"}
         print(a["f"])

@@ -140,6 +140,20 @@ class IPChecker:
                 response.close()
 
     @staticmethod
+    def check_if_cf_tls_proxy(ip: str, port: str):
+        context = ssl.create_default_context()
+        with socket.create_connection((ip, port)) as sock:
+            with context.wrap_socket(sock, server_hostname="www.cloudflare.com") as ssock:
+                cert = ssock.getpeercert()
+                if 'subject' in cert:
+                    subject = dict(x[0] for x in cert['subject'])
+                    issuer = dict(x[0] for x in cert['issuer'])
+                    # 检查证书的颁发者信息和主题信息是否包含Cloudflare相关的字符串
+                    if 'cloudflare' in str(subject) or 'cloudflare' in str(issuer):
+                        return True
+                return False
+
+    @staticmethod
     def detect_cloudflare_location(ip_addr: str, port: int | str, body: str, tcpDuration: str) -> dict | None:
         if 'uag=Mozilla/5.0' in body:
             matches = re.findall('colo=([A-Z]+)', body)
