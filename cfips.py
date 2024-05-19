@@ -1,5 +1,6 @@
 import csv
 import os
+import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -96,6 +97,8 @@ class SharedCFSublinksIPProvider(CloudflareIPProvider):
                 response = requests.get(link, headers=headers)
                 response.raise_for_status()
                 text = response.text
+                if '@cf_no1' in text:
+                    text = re.sub(r'[^\u0000-\u007F]+', '', text)
                 yml_config = yaml.safe_load(text)
                 proxies_ = yml_config['proxies']
                 proxies_ = [p for p in proxies_ if p['type'] == 'vless']
