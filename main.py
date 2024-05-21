@@ -14,7 +14,7 @@ async def schedule_conn_check():
     vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
     vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
 
-    trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(tls=True).all()
+    trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
     trojan_nodes = [n for n in trojan_nodes if n.port != n.server_port]
 
     vmess_nodes = database.session.query(database.V2ServerVMess).filter_by(tls=True).all()
