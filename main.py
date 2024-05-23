@@ -1,4 +1,5 @@
 import asyncio
+import random
 import sys
 
 import cfips
@@ -31,33 +32,32 @@ async def schedule_conn_check():
         print(">>> 当前没有可用的Cloudflare IP")
         return
     country_map = config.GlobalConfig.get_node_country_map()
-    has_use = set()
 
     print(f">>> 检查VLESS节点: {len(vless_nodes)}...")
     for node in vless_nodes:
+        has_use = set()
         print(f">>> 当前节点: {node.name}")
         port_open = checker.IPChecker.check_port_open(node.host, node.port, 5, 1)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
-            selected_ip = None
+            selected_ips = []
             for ip in ips:
                 use_index = ip.ip + str(ip.port) + str(ip.tls)
                 country_by_keyword = utils.detect_country_by_keyword(country_map, node.name)
                 if ip.country in country_by_keyword and use_index not in has_use:
                     has_use.add(ip.ip + str(ip.port) + str(ip.tls))
-                    selected_ip = ip
-                    break
-            if not selected_ip:
-                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ip},不做更新")
+                    selected_ips.append(ip)
+            if not selected_ips:
+                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ips},不做更新")
                 print(f">>> 考虑到可用性, 使用US地区IP代替,进行更新")
                 for ip in ips:
                     use_index = ip.ip + str(ip.port) + str(ip.tls)
                     country_by_keyword = utils.detect_country_by_keyword(country_map, "美国节点,美国专线")
                     if ip.country in country_by_keyword and use_index not in has_use:
                         has_use.add(ip.ip + str(ip.port) + str(ip.tls))
-                        selected_ip = ip
-                        break
+                        selected_ips.append(ip)
                 print("--------------------------------------------------------")
+            selected_ip = random.choice(selected_ips)
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
             # TODO 再使用前检测是否在线  在线检测是否是cf反代
             # 目前默认都是可用的 这个应该会存在误差
@@ -84,29 +84,29 @@ async def schedule_conn_check():
 
     print(f">>> 检查TROJAN节点: {len(trojan_nodes)}...")
     for node in trojan_nodes:
+        has_use = set()
         print(f">>> 当前节点: {node.name}")
         port_open = checker.IPChecker.check_port_open(node.host, node.port, 5, 1)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
-            selected_ip = None
+            selected_ips = []
             for ip in ips:
                 use_index = ip.ip + str(ip.port) + str(ip.tls)
                 country_by_keyword = utils.detect_country_by_keyword(country_map, node.name)
                 if ip.country in country_by_keyword and use_index not in has_use:
                     has_use.add(ip.ip + str(ip.port) + str(ip.tls))
-                    selected_ip = ip
-                    break
-            if not selected_ip:
-                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ip},不做更新")
+                    selected_ips.append(ip)
+            if not selected_ips:
+                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ips},不做更新")
                 print(f">>> 考虑到可用性, 使用US地区IP代替,进行更新")
                 for ip in ips:
                     use_index = ip.ip + str(ip.port) + str(ip.tls)
                     country_by_keyword = utils.detect_country_by_keyword(country_map, "美国节点,美国专线")
                     if ip.country in country_by_keyword and use_index not in has_use:
                         has_use.add(ip.ip + str(ip.port) + str(ip.tls))
-                        selected_ip = ip
-                        break
+                        selected_ips.append(ip)
                 print("--------------------------------------------------------")
+            selected_ip = random.choice(selected_ips)
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
             # TODO 再使用前检测是否在线  在线检测是否是cf反代
             # 目前默认都是可用的 这个应该会存在误差
@@ -133,29 +133,32 @@ async def schedule_conn_check():
 
     print(f">>> 检查VMESS节点: {len(vmess_nodes)}...")
     for node in vmess_nodes:
+        has_use = set()
+
         print(f">>> 当前节点: {node.name}")
         port_open = checker.IPChecker.check_port_open(node.host, node.port, 5, 1)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
-            selected_ip = None
+            selected_ips = []
             for ip in ips:
                 use_index = ip.ip + str(ip.port) + str(ip.tls)
                 country_by_keyword = utils.detect_country_by_keyword(country_map, node.name)
                 if ip.country in country_by_keyword and use_index not in has_use:
                     has_use.add(ip.ip + str(ip.port) + str(ip.tls))
-                    selected_ip = ip
-                    break
-            if not selected_ip:
-                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ip},不做更新")
+                    selected_ips.append(ip)
+            if not selected_ips:
+                print(f">>> 无法找到适合当前地区的IP: {node.name}: {selected_ips},不做更新")
                 print(f">>> 考虑到可用性, 使用US地区IP代替,进行更新")
                 for ip in ips:
                     use_index = ip.ip + str(ip.port) + str(ip.tls)
                     country_by_keyword = utils.detect_country_by_keyword(country_map, "美国节点,美国专线")
                     if ip.country in country_by_keyword and use_index not in has_use:
                         has_use.add(ip.ip + str(ip.port) + str(ip.tls))
-                        selected_ip = ip
-                        break
+                        selected_ips.append(ip)
+
                 print("--------------------------------------------------------")
+            selected_ip = random.choice(selected_ips)
+
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
             # TODO 再使用前检测是否在线  在线检测是否是cf反代
             # 目前默认都是可用的 这个应该会存在误差
