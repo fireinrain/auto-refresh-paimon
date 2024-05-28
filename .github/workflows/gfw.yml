@@ -45,7 +45,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Paimon Cloud updater
+    - name: Run Paimon Cloud GFW ban
       run: |
         python main.py gfwban
 

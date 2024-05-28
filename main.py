@@ -15,12 +15,6 @@ async def schedule_conn_check():
     vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
     vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
 
-    trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
-    trojan_nodes = [n for n in trojan_nodes if n.port != n.server_port]
-
-    vmess_nodes = database.session.query(database.V2ServerVMess).filter_by(tls=True).all()
-    vmess_nodes = [n for n in vmess_nodes if n.port != n.server_port]
-
     ip_provider = cfips.AAAGroupIPProvider()
     ips = ip_provider.get_ips()
 
@@ -83,6 +77,8 @@ async def schedule_conn_check():
             print(f">>> 当前优选IP端口未失效: {node.host}:{node.port},不做更新处理")
         print("--------------------------------------------------------")
 
+    trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
+    trojan_nodes = [n for n in trojan_nodes if n.port != n.server_port]
     print(f">>> 检查TROJAN节点: {len(trojan_nodes)}...")
     for node in trojan_nodes:
         has_use = set()
@@ -132,6 +128,8 @@ async def schedule_conn_check():
             print(f">>> 当前优选IP端口未失效: {node.host}:{node.port},不做更新处理")
         print("--------------------------------------------------------")
 
+    vmess_nodes = database.session.query(database.V2ServerVMess).filter_by(tls=True).all()
+    vmess_nodes = [n for n in vmess_nodes if n.port != n.server_port]
     print(f">>> 检查VMESS节点: {len(vmess_nodes)}...")
     for node in vmess_nodes:
         has_use = set()
@@ -216,6 +214,66 @@ async def schedule_gfw_ban_check():
             database.session.rollback()
         print("--------------------------------------------------------")
 
+    trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
+    trojan_nodes = [n for n in trojan_nodes if n.port != n.server_port]
+    for node in trojan_nodes:
+        port = node.port
+        ip = node.host
+        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 2)
+        await asyncio.sleep(5)
+        if not baned_with_gfw:
+            continue
+        temp_node_name = node.name
+        temp_host = node.host
+        temp_port = node.port
+        try:
+            node.port = 55555
+            node.host = "127.0.0.1"
+            database.session.commit()
+            print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+            print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
+
+            # 推送消息
+            telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+                                                            "auto-refresh-paimon paimon-cloud-gfw",
+                                                            f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
+            telegram_notify = utils.clean_str_for_tg(telegram_notify)
+            await notify.send_message2bot(telegram_notify)
+        except Exception as e:
+            print(f">>> Error update node info: {e}")
+            database.session.rollback()
+        print("--------------------------------------------------------")
+
+    vmess_nodes = database.session.query(database.V2ServerVMess).filter_by(tls=True).all()
+    vmess_nodes = [n for n in vmess_nodes if n.port != n.server_port]
+    for node in vmess_nodes:
+        port = node.port
+        ip = node.host
+        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 2)
+        await asyncio.sleep(5)
+        if not baned_with_gfw:
+            continue
+        temp_node_name = node.name
+        temp_host = node.host
+        temp_port = node.port
+        try:
+            node.port = 55555
+            node.host = "127.0.0.1"
+            database.session.commit()
+            print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+            print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
+
+            # 推送消息
+            telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+                                                            "auto-refresh-paimon paimon-cloud-gfw",
+                                                            f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
+            telegram_notify = utils.clean_str_for_tg(telegram_notify)
+            await notify.send_message2bot(telegram_notify)
+        except Exception as e:
+            print(f">>> Error update node info: {e}")
+            database.session.rollback()
+        print("--------------------------------------------------------")
+
 
 async def main():
     if len(sys.argv) != 2:
@@ -228,7 +286,7 @@ async def main():
         await schedule_conn_check()
     elif argument == "gfwban":
         # 检测方法存在比较大的误判
-        # await schedule_gfw_ban_check()
+        await schedule_gfw_ban_check()
         pass
     else:
         print(f"Invalid argument: {argument}")
