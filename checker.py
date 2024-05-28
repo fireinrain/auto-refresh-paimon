@@ -53,9 +53,9 @@ class IPChecker:
         for i in range(check_count):
             gfw = IPChecker.check_baned_with_gfw(host, port)
             if not gfw:
-                return True
+                return False
             time.sleep(15)
-        return False
+        return True
 
     # 检测ip端口是否被gfw ban
     @staticmethod

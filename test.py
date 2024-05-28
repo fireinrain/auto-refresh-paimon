@@ -8,7 +8,7 @@ class TestIPChecker(TestCase):
         print(checker.IPChecker.check_port_open("211.22.240.107", "30686"))
 
     def test_check_baned_with_gfw(self):
-        print(checker.IPChecker.check_baned_with_gfw("baidu.com", "443"))
+        print(checker.IPChecker.check_baned_with_gfw("i-love-paimon-cloud-v2.666961.xyz", "443"))
 
     def test_check_cloudflare_proxy(self):
         proxy = checker.IPChecker.check_cloudflare_proxy("104.19.32.25", "8443", True)
