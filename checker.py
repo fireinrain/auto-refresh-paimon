@@ -40,7 +40,7 @@ class IPChecker:
     @staticmethod
     def check_port_open_with_retry(host: socket, port: str | int, retry: int = 1) -> bool:
         for i in range(retry):
-            with_retry = IPChecker.check_port_open_with_retry(host, port)
+            with_retry = IPChecker.check_port_open(host, port)
             if with_retry:
                 return True
             utils.random_sleep(15)
