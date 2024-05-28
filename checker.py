@@ -1,3 +1,4 @@
+import datetime
 import http.client
 import random
 import re
@@ -51,7 +52,7 @@ class IPChecker:
         if check_count <= 0:
             raise ValueError("min_pass must be smaller than check_count")
         for i in range(check_count):
-            gfw = IPChecker.check_baned_with_gfw(host, port)
+            gfw = IPChecker.check_baned_with_gfw_v2(host, port)
             if not gfw:
                 return False
             time.sleep(15)
@@ -86,6 +87,54 @@ class IPChecker:
             response_data = resp.json()
 
             if response_data['icmp'] == "success" and response_data['tcp'] == "success":
+                print(f">>> ip: {host}:{port} is ok in China!")
+                return False
+            else:
+                print(f">>> ip: {host}:{port} is banned in China!")
+                return True
+        except Exception as e:
+            print(">>> Error request for ban check:", e)
+            return True
+
+    @staticmethod
+    def check_baned_with_gfw_v2(host: str, port: str | int) -> bool:
+
+        request_url = f"https://www.vps234.com/ipcheck/getdata/"
+        headers = {
+            'Accept': '*/*',
+            'Accept-Language': 'zh,en;q=0.9,zh-TW;q=0.8,zh-CN;q=0.7,ja;q=0.6',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Origin': 'https://www.vps234.com',
+            'Pragma': 'no-cache',
+            'Referer': 'https://www.vps234.com/ipchecker/',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'X-Requested-With': 'XMLHttpRequest',
+            'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"macOS"',
+        }
+        random_user_agent = IPChecker.get_random_user_agent()
+        headers['User-Agent'] = random_user_agent
+        # 1716887992202
+        timestamp_ = int(datetime.datetime.timestamp(datetime.datetime.now()) * 1000)
+        data = {
+            "idName": f"itemblockid{timestamp_}",
+            "ip": f"{host}"
+        }
+
+        try:
+            resp = requests.post(request_url, headers=headers, data=data)
+            resp.raise_for_status()
+
+            response_data = resp.json()
+
+            if response_data['data']['data']['innerTCP'] == "true" and response_data['data']['data'][
+                'outTCP'] == "true":
                 print(f">>> ip: {host}:{port} is ok in China!")
                 return False
             else:

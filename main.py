@@ -189,7 +189,7 @@ async def schedule_gfw_ban_check():
     for node in vless_nodes:
         port = node.port
         ip = node.host
-        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 2)
+        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 3)
         print(f"Proxy id: {ip}:{port} gfwban status: {baned_with_gfw}")
 
         # await asyncio.sleep(5)
@@ -221,7 +221,7 @@ async def schedule_gfw_ban_check():
     for node in trojan_nodes:
         port = node.port
         ip = node.host
-        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 2)
+        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 3)
         print(f"Proxy id: {ip}:{port} gfwban status: {baned_with_gfw}")
 
         # await asyncio.sleep(5)
@@ -253,7 +253,7 @@ async def schedule_gfw_ban_check():
     for node in vmess_nodes:
         port = node.port
         ip = node.host
-        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 2)
+        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 3)
         print(f"Proxy id: {ip}:{port} gfwban status: {baned_with_gfw}")
         # await asyncio.sleep(5)
         # if not baned_with_gfw:
