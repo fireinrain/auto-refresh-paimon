@@ -64,26 +64,26 @@ def random_sleep(max_sleep: int = 1):
     time.sleep(sleep_time)
 
 
-def get_ip_address(domain: str) -> str:
+def get_ip_address(domain_str: str) -> str:
     try:
         # 获取IPv4地址
-        ipv4 = socket.gethostbyname(domain)
-        print(f"IPv4 address of {domain}: {ipv4}")
+        ipv4 = socket.gethostbyname(domain_str)
+        print(f"IPv4 address of {domain_str}: {ipv4}")
         return ipv4
     except socket.gaierror:
-        print(f"Could not resolve {domain} to an IPv4 address")
+        print(f"Could not resolve {domain_str} to an IPv4 address")
 
     try:
         # 获取IPv6地址
-        ipv6_info = socket.getaddrinfo(domain, None, socket.AF_INET6)
+        ipv6_info = socket.getaddrinfo(domain_str, None, socket.AF_INET6)
         ipv6_addresses = [info[4][0] for info in ipv6_info]
         # 去重
         ipv6_addresses = list(set(ipv6_addresses))
         for ipv6 in ipv6_addresses:
-            print(f"IPv6 address of {domain}: {ipv6}")
+            print(f"IPv6 address of {domain_str}: {ipv6}")
         return ipv6_addresses[0]
     except socket.gaierror:
-        print(f"Could not resolve {domain} to an IPv6 address")
+        print(f"Could not resolve {domain_str} to an IPv6 address")
     return ""
 
 
@@ -131,9 +131,9 @@ def identify_string(s):
         return "Invalid"
 
 
-# 示例域名
-domain = "www.example.com"
-get_ip_address(domain)
+# # 示例域名
+# domain = "www.example.com"
+# get_ip_address(domain)
 
 if __name__ == '__main__':
     db_url = "root:aabbcc@abc.mysql@apple.com:24306/apple"

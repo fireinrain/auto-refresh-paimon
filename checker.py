@@ -100,7 +100,7 @@ class IPChecker:
                 print(f">>> ip: {host}:{port} is banned in China!")
                 return True
         except Exception as e:
-            print(">>> Error request for ban check:", e)
+            print(">>> Error request for ban check:", e, "check_baned_with_gfw")
             return True
 
     @staticmethod
@@ -154,7 +154,7 @@ class IPChecker:
                 print(f">>> ip: {host}:{port} is banned in China!")
                 return True
         except Exception as e:
-            print(">>> Error request for ban check:", e)
+            print(">>> Error request for ban check:", e, "check_baned_with_gfw_v2")
             return True
 
     @staticmethod
