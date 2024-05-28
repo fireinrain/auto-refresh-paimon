@@ -52,10 +52,17 @@ class IPChecker:
         if check_count <= 0:
             raise ValueError("min_pass must be smaller than check_count")
         for i in range(check_count):
-            gfw = IPChecker.check_baned_with_gfw_v2(host, port)
+            gfw = IPChecker.check_baned_with_gfw(host, port)
             if not gfw:
                 return False
             time.sleep(15)
+        # 使用v2接口再次检测一下
+        ipv_ = utils.is_valid_ipv4(host)
+        if not ipv_:
+            host = utils.get_ip_address(host)
+        is_ban = IPChecker.check_baned_with_gfw_v2(host, port)
+        if not is_ban:
+            return False
         return True
 
     # 检测ip端口是否被gfw ban
@@ -98,43 +105,49 @@ class IPChecker:
 
     @staticmethod
     def check_baned_with_gfw_v2(host: str, port: str | int) -> bool:
+        import subprocess
+        import json
 
-        request_url = f"https://www.vps234.com/ipcheck/getdata/"
-        headers = {
-            'Accept': '*/*',
-            'Accept-Language': 'zh,en;q=0.9,zh-TW;q=0.8,zh-CN;q=0.7,ja;q=0.6',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Origin': 'https://www.vps234.com',
-            'Pragma': 'no-cache',
-            'Referer': 'https://www.vps234.com/ipchecker/',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'X-Requested-With': 'XMLHttpRequest',
-            'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"macOS"',
-        }
-        random_user_agent = IPChecker.get_random_user_agent()
-        headers['User-Agent'] = random_user_agent
         # 1716887992202
         timestamp_ = int(datetime.datetime.timestamp(datetime.datetime.now()) * 1000)
         data = {
             "idName": f"itemblockid{timestamp_}",
             "ip": f"{host}"
         }
+        random_user_agent = IPChecker.get_random_user_agent()
+
+        curl_command = [
+            'curl', 'https://www.vps234.com/ipcheck/getdata/',
+            '-H', 'Accept: */*',
+            '-H', 'Accept-Language: zh,en;q=0.9,zh-TW;q=0.8,zh-CN;q=0.7,ja;q=0.6',
+            '-H', 'Cache-Control: no-cache',
+            '-H', 'Connection: keep-alive',
+            '-H', 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
+            '-H', 'Origin: https://www.vps234.com',
+            '-H', 'Pragma: no-cache',
+            '-H', 'Referer: https://www.vps234.com/ipchecker/',
+            '-H', 'Sec-Fetch-Dest: empty',
+            '-H', 'Sec-Fetch-Mode: cors',
+            '-H', 'Sec-Fetch-Site: same-origin',
+            '-H',
+            f'User-Agent: {random_user_agent}',
+            '-H', 'X-Requested-With: XMLHttpRequest',
+            '-H', 'sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            '-H', 'sec-ch-ua-mobile: ?0',
+            '-H', 'sec-ch-ua-platform: "macOS"',
+            '--data-raw', f'idName={data["idName"]}&ip={data["ip"]}'
+        ]
 
         try:
-            resp = requests.post(request_url, headers=headers, data=data)
-            resp.raise_for_status()
+            # Execute the curl command
+            result = subprocess.run(curl_command, capture_output=True, text=True)
 
-            response_data = resp.json()
+            # Print the output
+            # print(result.stdout)
+            response_data = json.loads(str(result.stdout))
 
-            if response_data['data']['data']['innerTCP'] == "true" and response_data['data']['data'][
-                'outTCP'] == "true":
+            if response_data['data']['data']['innerTCP'] == True and response_data['data']['data'][
+                'outTCP'] == True:
                 print(f">>> ip: {host}:{port} is ok in China!")
                 return False
             else:

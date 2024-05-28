@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 
 import checker
@@ -33,35 +34,38 @@ class TestIPChecker(TestCase):
         print(a["f"])
 
     def test_curl(self):
-        import requests
+        import subprocess
+        import json
 
-        url = 'https://www.vps234.com/ipcheck/getdata/'
+        curl_command = [
+            'curl', 'https://www.vps234.com/ipcheck/getdata/',
+            '-H', 'Accept: */*',
+            '-H', 'Accept-Language: zh,en;q=0.9,zh-TW;q=0.8,zh-CN;q=0.7,ja;q=0.6',
+            '-H', 'Cache-Control: no-cache',
+            '-H', 'Connection: keep-alive',
+            '-H', 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
+            '-H', 'Origin: https://www.vps234.com',
+            '-H', 'Pragma: no-cache',
+            '-H', 'Referer: https://www.vps234.com/ipchecker/',
+            '-H', 'Sec-Fetch-Dest: empty',
+            '-H', 'Sec-Fetch-Mode: cors',
+            '-H', 'Sec-Fetch-Site: same-origin',
+            '-H',
+            'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            '-H', 'X-Requested-With: XMLHttpRequest',
+            '-H', 'sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            '-H', 'sec-ch-ua-mobile: ?0',
+            '-H', 'sec-ch-ua-platform: "macOS"',
+            '--data-raw', 'idName=itemblockid1716887992244&ip=34.150.133.11'
+        ]
 
-        headers = {
-            'Accept': '*/*',
-            'Accept-Language': 'zh,en;q=0.9,zh-TW;q=0.8,zh-CN;q=0.7,ja;q=0.6',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Origin': 'https://www.vps234.com',
-            'Pragma': 'no-cache',
-            'Referer': 'https://www.vps234.com/ipchecker/',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'X-Requested-With': 'XMLHttpRequest',
-            'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"macOS"',
-        }
+        # Execute the curl command
+        result = subprocess.run(curl_command, capture_output=True, text=True)
 
-        data = {
-            'idName': 'itemblockid1716887992202',
-            'ip': '34.150.133.11'
-        }
+        # Print the output
+        print(result.stdout)
+        # resp = json.loads(str(result))
 
-        response = requests.post(url, headers=headers, data=data)
-
-        print(response.text)
+        # Print the output
+        # print(resp)
 
