@@ -15,31 +15,35 @@ import utils
 
 class IPChecker:
     @staticmethod
-    def check_port_open(host: socket, port: str | int, retry: int = 1, threshold: int = 1) -> bool:
+    def check_port_open(host: socket, port: str | int) -> bool:
         sock = None
         port = int(port)
-        success_count = 0
-        for i in range(retry):
-            try:
-                # Create a socket object
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                # Set timeout to 1 second
-                sock.settimeout(2.5)
-                # Connect to the host and port
-                result = sock.connect_ex((host, port))
-                if result == 0:
-                    print(f">>> Port {port} is open on {host}")
-                    success_count += 1
-                else:
-                    print(f">>> Port {port} is closed on {host}")
+        try:
+            # Create a socket object
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # Set timeout to 1 second
+            sock.settimeout(2.5)
+            # Connect to the host and port
+            result = sock.connect_ex((host, port))
+            if result == 0:
+                print(f">>> Port {port} is open on {host}")
+                return True
+            else:
+                print(f">>> Port {port} is closed on {host}")
 
-            except Exception as e:
-                print(f"Error checking port: {e}")
-            finally:
-                sock.close()
+        except Exception as e:
+            print(f"Error checking port: {e}")
+        finally:
+            sock.close()
+        return False
+
+    @staticmethod
+    def check_port_open_with_retry(host: socket, port: str | int, retry: int = 1) -> bool:
+        for i in range(retry):
+            with_retry = IPChecker.check_port_open_with_retry(host, port)
+            if with_retry:
+                return True
             utils.random_sleep(15)
-        if success_count >= threshold and success_count > 0:
-            return True
         return False
 
     @staticmethod

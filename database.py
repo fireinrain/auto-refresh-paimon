@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, text, Text
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, text, Text, QueuePool
 from sqlalchemy.orm import sessionmaker
 import config
 
@@ -101,7 +101,13 @@ if ".db" in config.GlobalConfig.db_connect_url:
 else:
     db_url = config.GlobalConfig.db_connect_url
     db_url = utils.process_atin_dburl(db_url)
-    engine = create_engine(f'mysql+mysqlconnector://{db_url}', echo=True)
+    engine = create_engine(f'mysql+mysqlconnector://{db_url}', echo=True,
+                           poolclass=QueuePool,
+                           pool_size=5,
+                           max_overflow=20,
+                           pool_timeout=60,
+                           pool_pre_ping=True,
+                           pool_recycle=3600)
 
 Session = sessionmaker(bind=engine)
 session = Session()

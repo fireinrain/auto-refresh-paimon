@@ -2,18 +2,19 @@
 name: PaimonCloud updater gfw ban check
 
 on:
-#  push:
-#    branches:
-#      - master
+  push:
+    branches:
+      - master
   schedule:
     # run on every hour
     # - cron: "0 * * * *"
     # run on every 3 hour
-    - cron: "0 */12 * * *"
+    # - cron: "0 */12 * * *"
     # run on every 15 min
     # - cron: "*/45 * * * *"
     # run on 0 and 12 clock
     #- cron: "*/20 * * * *"
+    - cron: "0 5 * * *"
 
 
 jobs:

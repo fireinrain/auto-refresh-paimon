@@ -37,7 +37,7 @@ async def schedule_conn_check():
     for node in vless_nodes:
         has_use = set()
         print(f">>> 当前节点: {node.name}")
-        port_open = checker.IPChecker.check_port_open(node.host, node.port, 5, 1)
+        port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 5)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
             selected_ips = []
@@ -61,6 +61,7 @@ async def schedule_conn_check():
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
             # TODO 再使用前检测是否在线  在线检测是否是cf反代
             # 目前默认都是可用的 这个应该会存在误差
+            database.session.is_active
             temp_host = node.host
             temp_port = node.port
             temp_node_name = node.name
