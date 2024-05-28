@@ -190,7 +190,7 @@ async def schedule_gfw_ban_check():
     for node in vless_nodes:
         port = node.port
         ip = node.host
-        baned_with_gfw = checker.IPChecker.check_baned_with_gfw(ip, port)
+        baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 2)
         await asyncio.sleep(5)
         if not baned_with_gfw:
             continue

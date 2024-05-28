@@ -42,9 +42,21 @@ class IPChecker:
             return True
         return False
 
+    @staticmethod
+    def check_band_with_gfw_with_retry(host: str, port: str | int, check_count: int) -> bool:
+        if check_count <= 0:
+            raise ValueError("min_pass must be smaller than check_count")
+        for i in range(1, check_count):
+            gfw = IPChecker.check_baned_with_gfw(host, port)
+            if not gfw:
+                return True
+            time.sleep(15)
+        return False
+
     # 检测ip端口是否被gfw ban
     @staticmethod
     def check_baned_with_gfw(host: str, port: str | int) -> bool:
+
         request_url = f"https://www.toolsdaquan.com/toolapi/public/ipchecking/{host}/{port}"
         headers = {
             "Accept": "application/json, text/javascript, */*; q=0.01",
