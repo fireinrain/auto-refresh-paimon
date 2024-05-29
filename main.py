@@ -31,7 +31,7 @@ async def schedule_conn_check():
     for node in vless_nodes:
         has_use = set()
         print(f">>> 当前节点: {node.name}")
-        port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 5)
+        port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 10)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
             selected_ips = []
@@ -83,7 +83,7 @@ async def schedule_conn_check():
     for node in trojan_nodes:
         has_use = set()
         print(f">>> 当前节点: {node.name}")
-        port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 5)
+        port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 10)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
             selected_ips = []
@@ -135,7 +135,7 @@ async def schedule_conn_check():
         has_use = set()
 
         print(f">>> 当前节点: {node.name}")
-        port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 5)
+        port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 10)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
             selected_ips = []
