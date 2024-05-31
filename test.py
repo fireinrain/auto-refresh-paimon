@@ -15,7 +15,8 @@ class TestIPChecker(TestCase):
         print(checker.IPChecker.check_baned_with_gfw_v2("34.150.133.11", 443))
 
     def test_check_banded_with_gfw_v3(self):
-        print(checker.IPChecker.check_band_with_gfw_with_retry("51.195.165.203", 443,2))
+        # print(checker.IPChecker.check_band_with_gfw_with_retry("74.225.135.179", 443, 3))
+        print(checker.IPChecker.check_band_with_gfw_with_retry("35.234.63.45", 22, 3))
 
     def test_check_cloudflare_proxy(self):
         proxy = checker.IPChecker.check_cloudflare_proxy("104.19.32.25", "8443", True)
@@ -71,4 +72,3 @@ class TestIPChecker(TestCase):
 
         # Print the output
         # print(resp)
-
