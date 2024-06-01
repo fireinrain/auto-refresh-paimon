@@ -49,6 +49,7 @@ class IPChecker:
 
     @staticmethod
     def check_band_with_gfw_with_retry(host: str, port: str | int, check_count: int) -> bool:
+        host = host.strip()
         if check_count <= 0:
             raise ValueError("min_pass must be smaller than check_count")
         for i in range(check_count):
