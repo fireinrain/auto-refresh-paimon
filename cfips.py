@@ -111,6 +111,7 @@ class SharedCFSublinksIPProvider(CloudflareIPProvider):
                     cfip_data.ip = server
                     cfip_data.port = port
                     cfip_data.tls = tls
+                    node_name = utils.detect_cfno1_node_region_by_keyword(node_name)
                     country = utils.detect_country_by_keyword(config.GlobalConfig.get_node_country_map(), node_name)[0]
                     cfip_data.country = country
 

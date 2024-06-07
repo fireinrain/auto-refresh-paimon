@@ -27,6 +27,30 @@ def detect_country_by_keyword(country_map: dict, keyword: str) -> [str]:
     return ['US', 'SJC', 'LAX']
 
 
+def detect_cfno1_node_region_by_keyword(short_node_name: str) -> str:
+    if 'HK' in short_node_name:
+        return "香港,香港节点,香港专线"
+    elif 'JP' in short_node_name:
+        return "日本,日本节点,日本专线"
+    elif 'KR' in short_node_name:
+        return "韩国,韩国节点,韩国专线"
+    elif 'TW' in short_node_name:
+        return "台湾,台湾节点,台湾专线"
+    elif 'MO' in short_node_name:
+        return "澳门,澳门节点,澳门专线"
+    elif 'SG' in short_node_name:
+        return "新加坡,新加坡节点,新加坡专线"
+    elif 'US' in short_node_name:
+        return "美国,美国节点,美国专线"
+    elif 'GB' in short_node_name:
+        return "英国,英国节点,英国专线"
+    elif 'FR' in short_node_name:
+        return "法国,法国节点,法国专线"
+    elif 'DE' in short_node_name:
+        return "德国,德国节点,德国专线"
+    return "美国,美国节点,美国专线"
+
+
 SPECIAL_CHARS = [
     '\\',
     '_',
