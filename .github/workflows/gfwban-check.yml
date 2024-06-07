@@ -3,8 +3,8 @@ name: PaimonCloud updater gfw ban check
 
 on:
   push:
-    branches:
-      - master
+#    branches:
+#      - master
   schedule:
     # run on every hour
     # - cron: "0 * * * *"
