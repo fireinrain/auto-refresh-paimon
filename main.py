@@ -195,36 +195,36 @@ async def schedule_gfw_ban_check():
         await asyncio.sleep(5)
         if not baned_with_gfw:
             continue
-        # temp_node_name = node.name
-        # temp_host = node.host
-        # temp_port = node.port
-        # try:
-        #     node.port = 55555
-        #     node.host = "127.0.0.1"
-        #     database.session.commit()
-        #     print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
-        #     print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
-        #
-        #     # 推送消息
-        #     telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
-        #                                                     "auto-refresh-paimon paimon-cloud-gfw",
-        #                                                     f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
-        #     telegram_notify = utils.clean_str_for_tg(telegram_notify)
-        #     await notify.send_message2bot(telegram_notify)
-        # except Exception as e:
-        #     print(f">>> Error update node info: {e}")
-        #     database.session.rollback()
+        temp_node_name = node.name
+        temp_host = node.host
+        temp_port = node.port
+        try:
+            node.port = 55555
+            node.host = "127.0.0.1"
+            database.session.commit()
+            print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+            print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
 
-        print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
-        print(f">>> {node.name} {node.host}:{node.port}!")
-        temp_host = "127.0.0.1"
-        temp_port = 55555
-        # 推送消息
-        telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
-                                                        "auto-refresh-paimon paimon-cloud-gfw",
-                                                        f"{node.name} {node.name}:{node.name} changed to {temp_host}:{temp_port}")
-        telegram_notify = utils.clean_str_for_tg(telegram_notify)
-        await notify.send_message2bot(telegram_notify)
+            # 推送消息
+            telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+                                                            "auto-refresh-paimon paimon-cloud-gfw",
+                                                            f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
+            telegram_notify = utils.clean_str_for_tg(telegram_notify)
+            await notify.send_message2bot(telegram_notify)
+        except Exception as e:
+            print(f">>> Error update node info: {e}")
+            database.session.rollback()
+
+        # print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+        # print(f">>> {node.name} {node.host}:{node.port}!")
+        # temp_host = "127.0.0.1"
+        # temp_port = 55555
+        # # 推送消息
+        # telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+        #                                                 "auto-refresh-paimon paimon-cloud-gfw",
+        #                                                 f"{node.name} {node.name}:{node.name} changed to {temp_host}:{temp_port}")
+        # telegram_notify = utils.clean_str_for_tg(telegram_notify)
+        # await notify.send_message2bot(telegram_notify)
         print("--------------------------------------------------------")
 
     trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
@@ -238,36 +238,36 @@ async def schedule_gfw_ban_check():
         await asyncio.sleep(5)
         if not baned_with_gfw:
             continue
-        # temp_node_name = node.name
-        # temp_host = node.host
-        # temp_port = node.port
-        # try:
-        #     node.port = 55555
-        #     node.host = "127.0.0.1"
-        #     database.session.commit()
-        #     print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
-        #     print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
-        #
-        #     # 推送消息
-        #     telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
-        #                                                     "auto-refresh-paimon paimon-cloud-gfw",
-        #                                                     f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
-        #     telegram_notify = utils.clean_str_for_tg(telegram_notify)
-        #     await notify.send_message2bot(telegram_notify)
-        # except Exception as e:
-        #     print(f">>> Error update node info: {e}")
-        #     database.session.rollback()
+        temp_node_name = node.name
+        temp_host = node.host
+        temp_port = node.port
+        try:
+            node.port = 55555
+            node.host = "127.0.0.1"
+            database.session.commit()
+            print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+            print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
 
-        print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
-        print(f">>> {node.name} {node.host}:{node.port}!")
-        temp_host = "127.0.0.1"
-        temp_port = 55555
-        # 推送消息
-        telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
-                                                        "auto-refresh-paimon paimon-cloud-gfw",
-                                                        f"{node.name} {node.name}:{node.name} changed to {temp_host}:{temp_port}")
-        telegram_notify = utils.clean_str_for_tg(telegram_notify)
-        await notify.send_message2bot(telegram_notify)
+            # 推送消息
+            telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+                                                            "auto-refresh-paimon paimon-cloud-gfw",
+                                                            f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
+            telegram_notify = utils.clean_str_for_tg(telegram_notify)
+            await notify.send_message2bot(telegram_notify)
+        except Exception as e:
+            print(f">>> Error update node info: {e}")
+            database.session.rollback()
+
+        # print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+        # print(f">>> {node.name} {node.host}:{node.port}!")
+        # temp_host = "127.0.0.1"
+        # temp_port = 55555
+        # # 推送消息
+        # telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+        #                                                 "auto-refresh-paimon paimon-cloud-gfw",
+        #                                                 f"{node.name} {node.name}:{node.name} changed to {temp_host}:{temp_port}")
+        # telegram_notify = utils.clean_str_for_tg(telegram_notify)
+        # await notify.send_message2bot(telegram_notify)
         print("--------------------------------------------------------")
 
     vmess_nodes = database.session.query(database.V2ServerVMess).filter_by(tls=True).all()
@@ -280,36 +280,36 @@ async def schedule_gfw_ban_check():
         await asyncio.sleep(5)
         if not baned_with_gfw:
             continue
-        # temp_node_name = node.name
-        # temp_host = node.host
-        # temp_port = node.port
-        # try:
-        #     node.port = 55555
-        #     node.host = "127.0.0.1"
-        #     database.session.commit()
-        #     print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
-        #     print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
-        #
-        #     # 推送消息
-        #     telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
-        #                                                     "auto-refresh-paimon paimon-cloud-gfw",
-        #                                                     f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
-        #     telegram_notify = utils.clean_str_for_tg(telegram_notify)
-        #     await notify.send_message2bot(telegram_notify)
-        # except Exception as e:
-        #     print(f">>> Error update node info: {e}")
-        #     database.session.rollback()
+        temp_node_name = node.name
+        temp_host = node.host
+        temp_port = node.port
+        try:
+            node.port = 55555
+            node.host = "127.0.0.1"
+            database.session.commit()
+            print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+            print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
 
-        print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
-        print(f">>> {node.name} {node.host}:{node.port}!")
-        temp_host = "127.0.0.1"
-        temp_port = 55555
-        # 推送消息
-        telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
-                                                        "auto-refresh-paimon paimon-cloud-gfw",
-                                                        f"{node.name} {node.name}:{node.name} changed to {temp_host}:{temp_port}")
-        telegram_notify = utils.clean_str_for_tg(telegram_notify)
-        await notify.send_message2bot(telegram_notify)
+            # 推送消息
+            telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+                                                            "auto-refresh-paimon paimon-cloud-gfw",
+                                                            f"{temp_node_name} {temp_host}:{temp_port} changed to {node.host}:{node.port}")
+            telegram_notify = utils.clean_str_for_tg(telegram_notify)
+            await notify.send_message2bot(telegram_notify)
+        except Exception as e:
+            print(f">>> Error update node info: {e}")
+            database.session.rollback()
+
+        # print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
+        # print(f">>> {node.name} {node.host}:{node.port}!")
+        # temp_host = "127.0.0.1"
+        # temp_port = 55555
+        # # 推送消息
+        # telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
+        #                                                 "auto-refresh-paimon paimon-cloud-gfw",
+        #                                                 f"{node.name} {node.name}:{node.name} changed to {temp_host}:{temp_port}")
+        # telegram_notify = utils.clean_str_for_tg(telegram_notify)
+        # await notify.send_message2bot(telegram_notify)
         print("--------------------------------------------------------")
 
 

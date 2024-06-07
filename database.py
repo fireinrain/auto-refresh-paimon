@@ -105,7 +105,7 @@ else:
                            poolclass=QueuePool,
                            pool_size=5,
                            max_overflow=20,
-                           pool_timeout=60,
+                           pool_timeout=360,
                            pool_pre_ping=True,
                            pool_recycle=3600)
 
