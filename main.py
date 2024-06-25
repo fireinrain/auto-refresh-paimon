@@ -193,6 +193,12 @@ async def schedule_gfw_ban_check():
     vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
     vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
     for node in vless_nodes:
+        if "续订" in node.name:
+            continue
+        if "节点" in node.name:
+            continue
+        if "初次" in node.name:
+            continue
         port = node.port
         ip = node.host
         baned_with_gfw = checker.IPChecker.check_band_with_gfw_with_retry(ip, port, 3)
