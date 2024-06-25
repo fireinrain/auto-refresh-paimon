@@ -31,6 +31,12 @@ async def schedule_conn_check():
     for node in vless_nodes:
         has_use = set()
         print(f">>> 当前节点: {node.name}")
+        if "续订" in node.name:
+            continue
+        if "节点" in node.name:
+            continue
+        if "初次" in node.name:
+            continue
         port_open = checker.IPChecker.check_port_open_with_retry(node.host, node.port, 10)
         if not port_open:
             print(f">>> 当前优选IP端口已失效: {node.host}:{node.port},更新中...")
