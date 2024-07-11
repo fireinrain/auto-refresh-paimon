@@ -11,8 +11,9 @@ import utils
 
 
 async def schedule_conn_check():
+    db = next(database.get_db())
     # get cloudflare cdn proxy from db
-    vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
+    vless_nodes = db.query(database.V2ServerVless).filter_by(tls=True).all()
     vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
 
     ip_provider = cfips.AAAGroupIPProvider()
@@ -61,14 +62,14 @@ async def schedule_conn_check():
             print(f">>> 已找到适合当前地区的IP：{node.name}: {selected_ip}")
             # TODO 再使用前检测是否在线  在线检测是否是cf反代
             # 目前默认都是可用的 这个应该会存在误差
-            database.session.is_active
+            db.is_active
             temp_host = node.host
             temp_port = node.port
             temp_node_name = node.name
             node.host = selected_ip.ip
             node.port = selected_ip.port
             try:
-                database.session.commit()
+                db.commit()
                 print(f">>> Update node ip and port successfully!")
                 # 推送消息
                 telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
@@ -78,12 +79,12 @@ async def schedule_conn_check():
                 await notify.send_message2bot(telegram_notify)
             except Exception as e:
                 print(f">>> Error update node info: {e}")
-                database.session.rollback()
+                db.rollback()
         else:
             print(f">>> 当前优选IP端口未失效: {node.host}:{node.port},不做更新处理")
         print("--------------------------------------------------------")
 
-    trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
+    trojan_nodes = db.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
     trojan_nodes = [n for n in trojan_nodes if n.port != n.server_port]
     print(f">>> 检查TROJAN节点: {len(trojan_nodes)}...")
     for node in trojan_nodes:
@@ -119,7 +120,7 @@ async def schedule_conn_check():
             node.host = selected_ip.ip
             node.port = selected_ip.port
             try:
-                database.session.commit()
+                db.commit()
                 print(f">>> Update node ip and port successfully!")
                 # 推送消息
                 telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
@@ -129,12 +130,12 @@ async def schedule_conn_check():
                 await notify.send_message2bot(telegram_notify)
             except Exception as e:
                 print(f">>> Error update node info: {e}")
-                database.session.rollback()
+                db.rollback()
         else:
             print(f">>> 当前优选IP端口未失效: {node.host}:{node.port},不做更新处理")
         print("--------------------------------------------------------")
 
-    vmess_nodes = database.session.query(database.V2ServerVMess).filter_by(tls=True).all()
+    vmess_nodes = db.query(database.V2ServerVMess).filter_by(tls=True).all()
     vmess_nodes = [n for n in vmess_nodes if n.port != n.server_port]
     print(f">>> 检查VMESS节点: {len(vmess_nodes)}...")
     for node in vmess_nodes:
@@ -173,7 +174,7 @@ async def schedule_conn_check():
             node.host = selected_ip.ip
             node.port = selected_ip.port
             try:
-                database.session.commit()
+                db.commit()
                 print(f">>> Update node ip and port successfully!")
                 # 推送消息
                 telegram_notify = notify.pretty_telegram_notify("🍻🍻AutoRefreshPaimon更新",
@@ -183,14 +184,15 @@ async def schedule_conn_check():
                 await notify.send_message2bot(telegram_notify)
             except Exception as e:
                 print(f">>> Error update node info: {e}")
-                database.session.rollback()
+                db.rollback()
         else:
             print(f">>> 当前优选IP端口未失效: {node.host}:{node.port},不做更新处理")
         print("--------------------------------------------------------")
 
 
 async def schedule_gfw_ban_check():
-    vless_nodes = database.session.query(database.V2ServerVless).filter_by(tls=True).all()
+    db = next(database.get_db())
+    vless_nodes = db.query(database.V2ServerVless).filter_by(tls=True).all()
     vless_nodes = [n for n in vless_nodes if n.port != n.server_port]
     for node in vless_nodes:
         if "续订" in node.name:
@@ -213,7 +215,7 @@ async def schedule_gfw_ban_check():
         try:
             node.port = 55555
             node.host = "127.0.0.1"
-            database.session.commit()
+            db.commit()
             print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
             print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
 
@@ -225,7 +227,7 @@ async def schedule_gfw_ban_check():
             await notify.send_message2bot(telegram_notify)
         except Exception as e:
             print(f">>> Error update node info: {e}")
-            database.session.rollback()
+            db.rollback()
 
         # print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
         # print(f">>> {node.name} {node.host}:{node.port}!")
@@ -239,7 +241,7 @@ async def schedule_gfw_ban_check():
         # await notify.send_message2bot(telegram_notify)
         print("--------------------------------------------------------")
 
-    trojan_nodes = database.session.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
+    trojan_nodes = db.query(database.V2ServerTrojan).filter_by(allow_insecure=False).all()
     trojan_nodes = [n for n in trojan_nodes if n.port != n.server_port]
     for node in trojan_nodes:
         port = node.port
@@ -256,7 +258,7 @@ async def schedule_gfw_ban_check():
         try:
             node.port = 55555
             node.host = "127.0.0.1"
-            database.session.commit()
+            db.commit()
             print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
             print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
 
@@ -268,7 +270,7 @@ async def schedule_gfw_ban_check():
             await notify.send_message2bot(telegram_notify)
         except Exception as e:
             print(f">>> Error update node info: {e}")
-            database.session.rollback()
+            db.rollback()
 
         # print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
         # print(f">>> {node.name} {node.host}:{node.port}!")
@@ -282,7 +284,7 @@ async def schedule_gfw_ban_check():
         # await notify.send_message2bot(telegram_notify)
         print("--------------------------------------------------------")
 
-    vmess_nodes = database.session.query(database.V2ServerVMess).filter_by(tls=True).all()
+    vmess_nodes = db.query(database.V2ServerVMess).filter_by(tls=True).all()
     vmess_nodes = [n for n in vmess_nodes if n.port != n.server_port]
     for node in vmess_nodes:
         port = node.port
@@ -298,7 +300,7 @@ async def schedule_gfw_ban_check():
         try:
             node.port = 55555
             node.host = "127.0.0.1"
-            database.session.commit()
+            db.commit()
             print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
             print(f">>> {temp_node_name} {temp_host}:{temp_port}!")
 
@@ -310,7 +312,7 @@ async def schedule_gfw_ban_check():
             await notify.send_message2bot(telegram_notify)
         except Exception as e:
             print(f">>> Error update node info: {e}")
-            database.session.rollback()
+            db.rollback()
 
         # print(f">>> ip and port was baned by GFW,update node ip and port to fake for waiting update!")
         # print(f">>> {node.name} {node.host}:{node.port}!")

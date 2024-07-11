@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, text, Text, QueuePool
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 import config
 
@@ -109,5 +110,18 @@ else:
                            pool_pre_ping=True,
                            pool_recycle=280)
 
-Session = sessionmaker(bind=engine)
-session = Session()
+SessionLocal = sessionmaker(bind=engine)
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    except OperationalError:
+        db.close()  # 关闭当前会话
+        engine.dispose()  # 关闭连接池中的所有连接
+        engine.connect()  # 重新建立连接
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
