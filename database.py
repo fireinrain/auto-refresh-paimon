@@ -107,7 +107,7 @@ else:
                            max_overflow=20,
                            pool_timeout=3600,
                            pool_pre_ping=True,
-                           pool_recycle=3600)
+                           pool_recycle=280)
 
 Session = sessionmaker(bind=engine)
 session = Session()
