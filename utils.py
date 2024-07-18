@@ -14,6 +14,7 @@ def process_atin_dburl(dburl: str) -> str:
 
 
 def detect_country_by_keyword(country_map: dict, keyword: str) -> [str]:
+    keyword = keyword.replace(" ", "")
     keys = country_map.keys()
     try:
         for k in keys:
