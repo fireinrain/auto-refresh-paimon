@@ -121,6 +121,35 @@ class SharedCFSublinksIPProvider(CloudflareIPProvider):
         return result
 
 
+class IpdbBestCFIPProvider(CloudflareIPProvider):
+    def get_ips(self) -> [CFIPData]:
+        result = []
+        url = "https://ipdb.api.030101.xyz/?type=bestproxy&country=true"
+        headers = {
+            "User-Agent": 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+        }
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            resp_text = response.text
+            text_split = resp_text.split("\n")
+            for line in text_split:
+                line_split = line.split("#")
+                ip = line_split[0]
+                port = 443
+                loc = line_split[1]
+                cfip_data = CFIPData()
+                cfip_data.ip = ip
+                cfip_data.port = port
+                cfip_data.tls = True
+                cfip_data.country = loc
+                result.append(cfip_data)
+        except Exception as e:
+            print(f"Error on get url: {url},error: {e}")
+
+        return result
+
+
 if __name__ == '__main__':
     # ip_provider = AAAGroupIPProvider()
     # ips = ip_provider.get_ips()
@@ -128,5 +157,8 @@ if __name__ == '__main__':
     # ip_provider = CSVFileIPProvider()
     # ips = ip_provider.get_ips()
     # print(ips)
-    ip_provider = SharedCFSublinksIPProvider()
-    ip_provider.get_ips()
+    # ip_provider = SharedCFSublinksIPProvider()
+    # ip_provider.get_ips()
+
+    cfip_provider = IpdbBestCFIPProvider()
+    cfip_provider.get_ips()

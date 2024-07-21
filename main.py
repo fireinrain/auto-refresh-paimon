@@ -23,6 +23,12 @@ async def schedule_conn_check():
     cf_sublinks_ip_provider = cfips.SharedCFSublinksIPProvider()
     shared_ips = cf_sublinks_ip_provider.get_ips()
     ips.extend(shared_ips)
+
+    # IPDB github 的数据
+    cfip_provider = cfips.IpdbBestCFIPProvider()
+    ipdb_ips = cfip_provider.get_ips()
+    ips.extend(ipdb_ips)
+
     if not ips:
         print(">>> 当前没有可用的Cloudflare IP")
         return
