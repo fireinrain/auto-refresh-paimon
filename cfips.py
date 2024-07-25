@@ -190,5 +190,23 @@ if __name__ == '__main__':
     # cfip_provider = IpdbBestCFIPProvider()
     # cfip_provider.get_ips()
 
+    # redis_provider = OpenPortSnifferRedisProvider()
+    # redis_provider.get_ips()
+    ip_provider = AAAGroupIPProvider()
+    ips = ip_provider.get_ips()
+
+    # 欢乐时光 和 其他免费订阅链接
+    cf_sublinks_ip_provider = SharedCFSublinksIPProvider()
+    shared_ips = cf_sublinks_ip_provider.get_ips()
+    ips.extend(shared_ips)
+
+    # open port
     redis_provider = OpenPortSnifferRedisProvider()
-    redis_provider.get_ips()
+    provider_get_ips = redis_provider.get_ips()
+    ips.extend(provider_get_ips)
+
+    # IPDB github 的数据
+    cfip_provider = IpdbBestCFIPProvider()
+    ipdb_ips = cfip_provider.get_ips()
+    ips.extend(ipdb_ips)
+    print()

@@ -9,7 +9,7 @@ class Config(object):
         self.db_connect_url = db_url
         cf_betterip_api = os.getenv("CFBetterIPApi", "https://yx.xmsl.io/vmess/all")
         self.cf_betterip_api = cf_betterip_api
-        self.shared_cf_sublinks = os.getenv("SHAREDCFSUBLINKS", "")
+        self.shared_cf_sublinks = os.getenv("SHAREDCFSUBLINKS", "https://cfno1.pages.dev/clash")
 
         self.node_country_map = {
             '续订': ['US', 'SJC', 'LAX'],
