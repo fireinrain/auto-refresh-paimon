@@ -28,6 +28,12 @@ def detect_country_by_keyword(country_map: dict, keyword: str) -> [str]:
     return ['US', 'SJC', 'LAX']
 
 
+def detect_country_by_dc_keyword(dc_country_map: dict, dc_keyword: str) -> [str]:
+    for key, value in dc_country_map.items():
+        if dc_keyword in value:
+            return key
+
+
 def detect_cfno1_node_region_by_keyword(short_node_name: str) -> str:
     if 'HK' in short_node_name:
         return "香港,香港节点,香港专线"

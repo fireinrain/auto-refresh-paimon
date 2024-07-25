@@ -25,6 +25,9 @@ jobs:
       cancel-in-progress: true # Optional: if you want to cancel any currently running job when a new one is triggered
 
     env:
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_PASS: ${{ secrets.REDIS_PASS }}
       TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
       TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN}}
       V2BOARDDBURL: ${{ secrets.V2BOARDDBURL}}

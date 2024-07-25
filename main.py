@@ -24,6 +24,11 @@ async def schedule_conn_check():
     shared_ips = cf_sublinks_ip_provider.get_ips()
     ips.extend(shared_ips)
 
+    # open port
+    redis_provider = cfips.OpenPortSnifferRedisProvider()
+    provider_get_ips = redis_provider.get_ips()
+    ips.extend(provider_get_ips)
+
     # IPDB github 的数据
     cfip_provider = cfips.IpdbBestCFIPProvider()
     ipdb_ips = cfip_provider.get_ips()

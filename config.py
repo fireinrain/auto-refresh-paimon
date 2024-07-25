@@ -28,8 +28,24 @@ class Config(object):
             '太阳': ['US', 'SJC', 'LAX']
         }
 
+        self.dc_country_map = {
+            'HK': ['HK', 'HKG'],
+            'MO': ['MO', 'MFM'],
+            'SG': ['SG', 'SIN'],
+            'TW': ['TW', 'TPE', 'KHH'],
+            'JP': ['JP', 'NRT', 'KIX', 'OKA', 'FUK'],
+            'KR': ['KR', 'ICN'],
+            'US': ['US', 'SJC', 'LAX'],
+            'GB': ['GB', 'EDI', 'LHR', 'MAN'],
+            'FR': ['FR', 'CDG', 'MRS', 'LYS', 'BOD'],
+            'DE': ['DE', 'TXL', 'DUS', 'FRA', 'HAM', 'STR', 'MUC'],
+        }
+
     def get_node_country_map(self):
         return self.node_country_map
+
+    def get_dc_country_map(self):
+        return self.dc_country_map
 
 
 GlobalConfig = Config()
