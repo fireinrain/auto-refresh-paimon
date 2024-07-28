@@ -104,8 +104,8 @@ else:
     db_url = utils.process_atin_dburl(db_url)
     engine = create_engine(f'mysql+mysqlconnector://{db_url}', echo=True,
                            poolclass=QueuePool,
-                           pool_size=5,
-                           max_overflow=20,
+                           pool_size=10,
+                           max_overflow=30,
                            pool_timeout=3600,
                            pool_pre_ping=True,
                            pool_recycle=280)
