@@ -1,11 +1,15 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, text, Text, QueuePool
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import sessionmaker
+import logging
+import time
+from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.pool import QueuePool
 import config
-
-from sqlalchemy.orm import declarative_base
-
 import utils
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
@@ -92,36 +96,63 @@ class V2ServerVMess(Base):
         return f"<V2ServerVMess(id={self.id}, name={self.name})>"
 
 
-engine = None
-# Example usage
-# engine = create_engine('sqlite:///dmm-av-daily.db', echo=True)
-if ".db" in config.GlobalConfig.db_connect_url:
-    db_url = config.GlobalConfig.db_connect_url
-    engine = create_engine(f'sqlite:///{db_url}', echo=True)
-    Base.metadata.create_all(engine)
-else:
-    db_url = config.GlobalConfig.db_connect_url
-    db_url = utils.process_atin_dburl(db_url)
-    engine = create_engine(f'mysql+mysqlconnector://{db_url}', echo=True,
-                           poolclass=QueuePool,
-                           pool_size=10,
-                           max_overflow=30,
-                           pool_timeout=3600,
-                           pool_pre_ping=True,
-                           pool_recycle=280)
+# Determine the database connection URL
+db_url = config.GlobalConfig.db_connect_url
 
+if ".db" in db_url:
+    engine = create_engine(f'sqlite:///{db_url}', echo=True)
+else:
+    db_url = utils.process_atin_dburl(db_url)
+    engine = create_engine(
+        f'mysql+mysqlconnector://{db_url}',
+        echo=True,
+        poolclass=QueuePool,
+        pool_size=10,
+        max_overflow=30,
+        pool_timeout=3600,
+        pool_pre_ping=True,
+        pool_recycle=360
+    )
+
+# Create all tables
+Base.metadata.create_all(engine)
+
+# Session maker
 SessionLocal = sessionmaker(bind=engine)
 
 
 def get_db():
-    db = SessionLocal()
+    db = None
     try:
-        yield db
-    except OperationalError:
-        db.close()  # 关闭当前会话
-        engine.dispose()  # 关闭连接池中的所有连接
-        engine.connect()  # 重新建立连接
         db = SessionLocal()
         yield db
+    except OperationalError as e:
+        logger.error("OperationalError: %s", e)
+        if db:
+            db.close()  # Close current session
+        engine.dispose()  # Close all connections in the pool
+        engine.connect()  # Re-establish connection
+        db = SessionLocal()
+        yield db
+    except SQLAlchemyError as e:
+        logger.error("SQLAlchemyError: %s", e)
     finally:
-        db.close()
+        if db:
+            db.close()
+
+
+def run_for_one_hour():
+    start_time = time.time()
+    while time.time() - start_time < 3600:
+        try:
+            with get_db() as db:
+                # Your logic here, for example:
+                # result = db.query(V2ServerTrojan).all()
+                pass
+        except Exception as e:
+            logger.error("Exception occurred: %s", e)
+        time.sleep(1)  # Adjust the sleep time as necessary
+
+
+if __name__ == "__main__":
+    run_for_one_hour()
