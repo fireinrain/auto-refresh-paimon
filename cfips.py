@@ -108,6 +108,9 @@ class SharedCFSublinksIPProvider(CloudflareIPProvider):
                     node_name = proxy['name']
                     port = proxy['port']
                     server = proxy['server']
+                    # 排除域名节点
+                    if 'pages.dev' in server or 'eu.org' in server:
+                        continue
                     tls = proxy['tls']
                     cfip_data = CFIPData()
                     cfip_data.ip = server
