@@ -24,8 +24,7 @@ class Config(object):
             '英国': ['GB', 'EDI', 'LHR', 'MAN'],
             '法国': ['FR', 'CDG', 'MRS', 'LYS', 'BOD'],
             '德国': ['DE', 'TXL', 'DUS', 'FRA', 'HAM', 'STR', 'MUC'],
-            '地球': ['TW', 'TPE', 'KHH'],
-            '太阳': ['US', 'SJC', 'LAX']
+            '地球': ['US', 'SJC', 'LAX']
         }
 
         self.dc_country_map = {
