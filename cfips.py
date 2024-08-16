@@ -32,12 +32,13 @@ class CloudflareIPProvider(ABC):
 
 class AAAGroupIPProvider(CloudflareIPProvider):
     def get_ips(self) -> [CFIPData]:
+        result = []
         try:
             response = requests.get(config.GlobalConfig.cf_betterip_api)
             response.raise_for_status()
             json_data = response.json()
             ip_datas = json_data['data']
-            result = []
+
             for data in ip_datas:
                 cfip_data = CFIPData()
                 cfip_data.ip = data['host']
@@ -47,7 +48,7 @@ class AAAGroupIPProvider(CloudflareIPProvider):
             return result
         except Exception as e:
             print(f">>> Get cloudflare ips from AAA failed: {e}")
-            return []
+            return result
 
 
 class CSVFileIPProvider(CloudflareIPProvider):
