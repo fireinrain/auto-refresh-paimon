@@ -107,11 +107,11 @@ else:
         f'mysql+mysqlconnector://{db_url}',
         echo=True,
         poolclass=QueuePool,
-        pool_size=10,
-        max_overflow=30,
+        pool_size=2,
+        max_overflow=4,
         pool_timeout=3600,
         pool_pre_ping=True,
-        pool_recycle=360
+        pool_recycle=3600
     )
 
 # Create all tables
