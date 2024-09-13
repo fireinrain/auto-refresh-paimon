@@ -56,7 +56,7 @@ class IPChecker:
             gfw = IPChecker.check_baned_with_gfw(host, port)
             if not gfw:
                 return False
-            time.sleep(8)
+            time.sleep(10)
         # 使用v2接口再次检测一下
         # 该接口存在误判
         # ipv_ = utils.is_valid_ipv4(host)
