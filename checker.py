@@ -56,14 +56,15 @@ class IPChecker:
             gfw = IPChecker.check_baned_with_gfw(host, port)
             if not gfw:
                 return False
-            time.sleep(15)
+            time.sleep(8)
         # 使用v2接口再次检测一下
-        ipv_ = utils.is_valid_ipv4(host)
-        if not ipv_:
-            host = utils.get_ip_address(host)
-        is_ban = IPChecker.check_baned_with_gfw_v2(host, port)
-        if not is_ban:
-            return False
+        # 该接口存在误判
+        # ipv_ = utils.is_valid_ipv4(host)
+        # if not ipv_:
+        #     host = utils.get_ip_address(host)
+        # is_ban = IPChecker.check_baned_with_gfw_v2(host, port)
+        # if not is_ban:
+        #     return False
         return True
 
     # 检测ip端口是否被gfw ban
