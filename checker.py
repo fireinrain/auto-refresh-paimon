@@ -95,11 +95,11 @@ class IPChecker:
 
             response_data = resp.json()
 
-            if response_data['icmp'] == "success" and response_data['tcp'] == "success":
-                print(f">>> ip: {host}:{port} is ok in China!")
+            if response_data['tcp'] == "success":
+                print(f">>> ip: {host}:{port} is ok in China,status: {response_data}")
                 return False
             else:
-                print(f">>> ip: {host}:{port} is banned in China!")
+                print(f">>> ip: {host}:{port} is banned in China,status: {response_data}")
                 return True
         except Exception as e:
             print(">>> Error request for ban check:", e, "check_baned_with_gfw")

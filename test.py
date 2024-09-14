@@ -8,7 +8,7 @@ class TestIPChecker(TestCase):
         print(checker.IPChecker.check_port_open("211.22.240.107", "30686"))
 
     def test_check_baned_with_gfw(self):
-        print(checker.IPChecker.check_baned_with_gfw("i-love-paimon-cloud-v2.666961.xyz", "443"))
+        print(checker.IPChecker.check_baned_with_gfw("15.235.203.208", "2053"))
 
     def test_check_baned_with_gfw_v2(self):
         print(checker.IPChecker.check_baned_with_gfw_v2("34.150.133.11", 443))
