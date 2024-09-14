@@ -167,6 +167,8 @@ class OpenPortSnifferRedisProvider(CloudflareIPProvider):
 
             # Prepare the data for Cloudflare KV
             # kv_key = key.decode('utf-8')
+            if not value:
+                continue
             kv_value = json.loads(value.decode('utf-8'))
 
             cfip_data = CFIPData()
