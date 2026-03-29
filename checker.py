@@ -1,5 +1,4 @@
 import datetime
-import http.client
 import random
 import re
 import socket
@@ -70,14 +69,14 @@ class IPChecker:
     # 检测ip端口是否被gfw ban
     @staticmethod
     def check_baned_with_gfw(host: str, port: str | int) -> bool:
-
-        request_url = f"https://www.toolsdaquan.com/toolapi/public/ipchecking/{host}/{port}"
+        request_url = f"https://api.ycwxgzs.com/ipcheck/index.php"
         headers = {
             "Accept": "application/json, text/javascript, */*; q=0.01",
             "Accept-Language": "zh,en;q=0.9,zh-TW;q=0.8,zh-CN;q=0.7,ja;q=0.6",
             "Cache-Control": "no-cache",
             "Pragma": "no-cache",
-            "Referer": "https://www.toolsdaquan.com/ipcheck/",
+            "Origin": "https://ip112.cn",
+            "Referer": "https://ip112.cn/",
             "Sec-Ch-Ua": "\"Google Chrome\";v=\"111\", \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"111\"",
             "Sec-Ch-Ua-Mobile": "?0",
             "Sec-Ch-Ua-Platform": "\"macOS\"",
@@ -88,18 +87,21 @@ class IPChecker:
         }
         random_user_agent = IPChecker.get_random_user_agent()
         headers['User-Agent'] = random_user_agent
-
+        r = {
+            "ip": f"{host}",
+            "port": f"{port}",
+        }
         try:
-            resp = requests.get(request_url, headers=headers)
+            resp = requests.post(request_url, data=r, headers=headers)
             resp.raise_for_status()
 
             response_data = resp.json()
 
-            if response_data['tcp'] == "success":
-                print(f">>> ip: {host}:{port} is ok in China,status: {response_data}")
+            if "端口可用" in response_data['tcp']:
+                print(f">>> ip: {host}:{port} is ok in China!")
                 return False
             else:
-                print(f">>> ip: {host}:{port} is banned in China,status: {response_data}")
+                print(f">>> ip: {host}:{port} is banned in China!")
                 return True
         except Exception as e:
             print(">>> Error request for ban check:", e, "check_baned_with_gfw")

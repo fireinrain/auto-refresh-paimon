@@ -34,10 +34,11 @@ class AAAGroupIPProvider(CloudflareIPProvider):
     def get_ips(self) -> [CFIPData]:
         result = []
         try:
-            response = requests.get(config.GlobalConfig.cf_betterip_api)
+            data = {"key": "aaa"}
+            response = requests.post(config.GlobalConfig.cf_betterip_api, json=data)
             response.raise_for_status()
             json_data = response.json()
-            ip_datas = json_data['data']
+            ip_datas = json_data['ip']
 
             for data in ip_datas:
                 cfip_data = CFIPData()
@@ -159,11 +160,11 @@ class IpdbBestCFIPProvider(CloudflareIPProvider):
 class OpenPortSnifferRedisProvider(CloudflareIPProvider):
     def get_ips(self) -> [CFIPData]:
         result = []
-        keys = r.hkeys('snifferx-result')
+        keys = r.hkeys('snifferx-final-result')
 
         # For each key, get the value and store in Cloudflare KV
         for key in keys:
-            value = r.hget('snifferx-result', key)
+            value = r.hget('snifferx-final-result', key)
 
             # Prepare the data for Cloudflare KV
             # kv_key = key.decode('utf-8')
@@ -215,4 +216,4 @@ if __name__ == '__main__':
     cfip_provider = IpdbBestCFIPProvider()
     ipdb_ips = cfip_provider.get_ips()
     ips.extend(ipdb_ips)
-    print()
+    print(ips)

@@ -7,8 +7,8 @@ class Config(object):
         db_url = os.getenv("V2BOARDDBURL", "v2boardx.db")
         print(f">>> Current database url: {db_url}")
         self.db_connect_url = db_url
-        cf_betterip_api = os.getenv("CFBetterIPApi", "https://yx.xmsl.io/vmess/all")
-        self.cf_betterip_api = cf_betterip_api
+        aaa_cfproxy_ips = "http://45.129.9.19:8090/api/cf"
+        self.cf_betterip_api = aaa_cfproxy_ips
         self.shared_cf_sublinks = os.getenv("SHAREDCFSUBLINKS", "https://cfno1.pages.dev/clash")
 
         self.node_country_map = {
