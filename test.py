@@ -70,4 +70,3 @@ class TestIPChecker(TestCase):
         # resp = json.loads(str(result))
 
         # Print the output
-        # print(resp)
